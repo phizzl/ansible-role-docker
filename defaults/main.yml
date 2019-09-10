@@ -1,0 +1,44 @@
+---
+## The user that is used to to run docker-compose
+docker_user: "{{ ansible_user }}"
+
+## The user group that is allowed to use docker
+docker_group: docker
+
+## Configure the directories to run docker-compose.
+## You also might add a GIT repository to pull the docker-compose.yml from
+##
+## An example configuration you look like this:
+## ```yaml
+## docker_compose_src:
+##  # Switch into the directory and run `docker-compose up -d`
+##  - dest: /home/docker/jenkins
+##  # Clone from GIT and run docker-compose
+##  - repo: https://github.com/bitnami/bitnami-docker-redmine.git
+##    dest: /home/docker/redmine
+##  # Ensure a service is not running
+##  - dest: /home/docker/jenkins
+##    state: absent
+##  # Provide multiple compose files for docker-compose
+##  - dest: /home/docker/gitlab
+##    files: ["docker-compose.yml", "docker-compose-development.yml"]
+## ```
+docker_compose_src: []
+
+## Software dependencies for using docker
+docker_package_dependencies:
+  - vim
+  - git
+#  - software-properties-common
+#  - ca-certificates
+#  - curl
+#  - gnupg-agent
+#  - software-properties-common
+  - python
+  - python-setuptools
+  - python-pip
+
+## Required Python packages that should be installed via pip
+docker_pip_dependencies:
+  - docker
+  - docker-compose

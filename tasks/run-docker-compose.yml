@@ -1,0 +1,29 @@
+---
+- name: Create destination directory
+  file:
+    path: "{{ compose.dest }}"
+    state: directory
+    owner: "{{ docker_user }}"
+
+- name: Checkout docker setup
+  git:
+    repo: "{{ compose.repo }}"
+    dest: "{{ compose.dest }}"
+  when: compose.repo is defined and compose.repo != ""
+  become_user: "{{ docker_user }}"
+
+- name: Setting directory permission
+  file:
+    path: "{{ compose.dest }}"
+    state: directory
+    owner: "{{ docker_user | default('docker') }}"
+    recurse: true
+  when: compose.repo is defined and compose.repo != ""
+  become_user: "{{ docker_user }}"
+
+- name: Running docker-compose
+  docker_compose:
+    project_src: "{{ compose.dest }}"
+    state: "{{ compose.state | default('present') }}"
+    files: "{{compose.files | default([]) }}"
+  become_user: "{{ docker_user }}"

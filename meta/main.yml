@@ -1,0 +1,7 @@
+---
+galaxy_info:
+  role_name: docker
+  author: phizzl
+
+dependencies:
+  - role: nickjj.docker
