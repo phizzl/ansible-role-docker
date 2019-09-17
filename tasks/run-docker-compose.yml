@@ -9,6 +9,9 @@
   git:
     repo: "{{ compose.repo }}"
     dest: "{{ compose.dest }}"
+    accept_hostkey: "{{ compose.accept_hostkey| default('yes') }}"
+    version: "{{ compose.version | default('HEAD') }}"
+    key_file: "{{ compose.key_file |default('') }}"
   when: compose.repo is defined and compose.repo != ""
   become_user: "{{ docker_user }}"
 
