@@ -25,7 +25,7 @@
 
 - name: Create docker-compose YAML depending from inline config
   lineinfile:
-    path: "{{ compose.dest }}/docker-compose-inline.yml"
+    path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
     create: true
     state: present
     line: "{{ compose.inline }}"
@@ -35,9 +35,8 @@
 - name: Append docker-compose config when inline script is given
   set_fact:
     generated_compose:
-      - "{{ compose.dest }}/docker-compose-inline.yml"
+      - "{{ compose.dest }}/docker-compose-inline-generated.yml"
   when: compose.inline is defined and compose.inline != ""
-
 
 - name: Running docker-compose
   docker_compose:
