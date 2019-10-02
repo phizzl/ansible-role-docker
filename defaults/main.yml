@@ -36,3 +36,6 @@ docker_package_dependencies:
 docker_pip_dependencies:
   - docker
   - docker-compose
+
+# Empty array used for inline compose files
+generated_compose: []

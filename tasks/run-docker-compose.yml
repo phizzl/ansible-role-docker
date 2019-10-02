@@ -32,10 +32,16 @@
     owner: "{{ docker_user }}"
   when: compose.inline is defined and compose.inline != ""
 
+- name: Append docker-compose config when inline script is given
+  set_fact:
+    generated_compose:
+      - "{{ compose.dest }}/docker-compose-inline.yml"
+  when: compose.inline is defined and compose.inline != ""
+
 
 - name: Running docker-compose
   docker_compose:
     project_src: "{{ compose.dest }}"
     state: "{{ compose.state | default('present') }}"
-    files: "{{ compose.files | default([]) }}"
+    files: "{{ compose.files | default([]) + generated_compose }}"
   become_user: "{{ docker_user }}"
