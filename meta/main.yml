@@ -2,6 +2,7 @@
 galaxy_info:
   role_name: docker
   author: phizzl
+  description: Role to boot docker compose setups
 
 dependencies:
   - role: nickjj.docker
