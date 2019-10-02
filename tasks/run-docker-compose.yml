@@ -19,14 +19,23 @@
   file:
     path: "{{ compose.dest }}"
     state: directory
-    owner: "{{ docker_user | default('docker') }}"
+    owner: "{{ docker_user }}"
     recurse: true
   when: compose.repo is defined and compose.repo != ""
-  become_user: "{{ docker_user }}"
+
+- name: Create docker-compose YAML depending from inline config
+  lineinfile:
+    path: "{{ compose.dest }}/docker-compose-inline.yml"
+    create: true
+    state: present
+    line: "{{ compose.inline }}"
+    owner: "{{ docker_user }}"
+  when: compose.inline is defined and compose.inline != ""
+
 
 - name: Running docker-compose
   docker_compose:
     project_src: "{{ compose.dest }}"
     state: "{{ compose.state | default('present') }}"
-    files: "{{compose.files | default([]) }}"
+    files: "{{ compose.files | default([]) }}"
   become_user: "{{ docker_user }}"
