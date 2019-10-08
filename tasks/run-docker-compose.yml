@@ -43,4 +43,5 @@
     project_src: "{{ compose.dest }}"
     state: "{{ compose.state | default('present') }}"
     files: "{{ compose.files | default([]) + generated_compose }}"
+    build: "{{ compose.build | default('no') }}"
   become_user: "{{ docker_user }}"
