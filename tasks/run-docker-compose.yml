@@ -38,10 +38,24 @@
       - "{{ compose.dest }}/docker-compose-inline-generated.yml"
   when: compose.inline is defined and compose.inline != ""
 
+- name: Execute pre-script
+  shell: "{{ compose.pre_script }}"
+  args:
+    chdir: "{{ compose.dest }}"
+  when: compose.pre_script is defined
+  become_user: "{{ docker_user }}"
+
 - name: Running docker-compose
   docker_compose:
     project_src: "{{ compose.dest }}"
     state: "{{ compose.state | default('present') }}"
     files: "{{ compose.files | default([]) + generated_compose }}"
     build: "{{ compose.build | default('no') }}"
+  become_user: "{{ docker_user }}"
+
+- name: Execute post-script
+  shell: "{{ compose.post_script }}"
+  args:
+    chdir: "{{ compose.dest }}"
+  when: compose.post_script is defined
   become_user: "{{ docker_user }}"
