@@ -3,7 +3,7 @@
 docker_user: "{{ ansible_user }}"
 
 ## The user group that is allowed to use docker
-docker_group: docker
+docker_group: ""
 
 ## Configure the directories to run docker-compose.
 ## You also might add a GIT repository to pull the docker-compose.yml from
