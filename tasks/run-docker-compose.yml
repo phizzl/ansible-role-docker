@@ -42,6 +42,8 @@
   shell: "{{ compose.pre_cmd }}"
   args:
     chdir: "{{ compose.dest }}"
+  environment:
+    SETUP_STATE: "{{ compose.state | default('present') }}"
   when: compose.pre_cmd is defined
   become_user: "{{ docker_user }}"
 
@@ -57,5 +59,7 @@
   shell: "{{ compose.post_cmd }}"
   args:
     chdir: "{{ compose.dest }}"
+  environment:
+    SETUP_STATE: "{{ compose.state | default('present') }}"
   when: compose.post_cmd is defined
   become_user: "{{ docker_user }}"
