@@ -1,8 +1,21 @@
 ---
 galaxy_info:
-  role_name: docker-compose
   author: phizzl
   description: Role to boot docker compose setups
+  license: MIT
+  min_ansible_version: 2.8
+  platforms:
+    - name: GenericUNIX
+      versions:
+        - all
+    - name: GenericBSD
+      versions:
+        - all
+    - name: GenericLinux
+      versions:
+        - all
+
+allow_duplicates: yes
 
 dependencies:
   - role: nickjj.docker
