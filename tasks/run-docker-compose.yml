@@ -39,12 +39,13 @@
   when: compose.inline is defined and compose.inline != ""
 
 - name: Execute pre commands
-  shell: "{{ compose.pre_cmd }}"
+  shell: "{{ item }}"
   args:
     chdir: "{{ compose.dest }}"
+  loop: "{{ compose.pre_commands }}"
   environment:
     SETUP_STATE: "{{ compose.state | default('present') }}"
-  when: compose.pre_cmd is defined
+  when: compose.pre_commands is defined
   become_user: "{{ docker_user }}"
 
 - name: Running docker-compose
@@ -56,10 +57,11 @@
   become_user: "{{ docker_user }}"
 
 - name: Execute post cmd
-  shell: "{{ compose.post_cmd }}"
+  shell: "{{ item }}"
   args:
     chdir: "{{ compose.dest }}"
+  loop: "{{ compose.post_commands }}"
   environment:
     SETUP_STATE: "{{ compose.state | default('present') }}"
-  when: compose.post_cmd is defined
+  when: compose.post_commands is defined
   become_user: "{{ docker_user }}"

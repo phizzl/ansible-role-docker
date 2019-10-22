@@ -1,4 +1,4 @@
-# Ansible role docker
+# Ansible role docker-compose
 A role for booting a docker-compose setup
 
 ## Requirements
@@ -29,8 +29,8 @@ the list can have following attributes:
 | `files` | The docker-compose.yml files that should be used when running the setup  | no | [] |
 | `state` | state of the setup (present, stopped, restarted or absent) | no | present |
 | `build` | docker-compose build?  | no | false |
-| `pre_cmd` | Inline script to run before docker-compose is started or stopped | no | / |
-| `post_cmd` | Inline script to run after docker-compose is started or stopped | no | / |
+| `pre_commands` | List of shell commands to run before docker-compose is started or stopped | no | / |
+| `post_commands` | List of shell commands to run after docker-compose is started or stopped | no | / |
 
 ###### Example `vd_docker_compose_src`
 
