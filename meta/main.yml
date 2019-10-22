@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  role_name: docker
+  role_name: docker-compose
   author: phizzl
   description: Role to boot docker compose setups
 
