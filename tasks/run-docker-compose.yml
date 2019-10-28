@@ -23,6 +23,11 @@
     recurse: true
   when: compose.repo is defined and compose.repo != ""
 
+- name: Removing generated docker-compose file if exists
+  file:
+    - path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
+      state: absent
+
 - name: Create docker-compose YAML depending from inline config
   lineinfile:
     path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
