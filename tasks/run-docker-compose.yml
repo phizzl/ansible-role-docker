@@ -23,10 +23,16 @@
     recurse: true
   when: compose.repo is defined and compose.repo != ""
 
+- name: Fetch stats of generated compose file
+  stat:
+    path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
+  register: docker_compose_prev_stat
+
 - name: Removing generated docker-compose file if exists
   file:
     path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
     state: absent
+  when: docker_compose_prev_stat.stat.exists == "True"
 
 - name: Create docker-compose YAML depending from inline config
   lineinfile:
@@ -52,6 +58,19 @@
     SETUP_STATE: "{{ compose.state | default('present') }}"
   when: compose.pre_commands is defined
   become_user: "{{ docker_user }}"
+
+- name: Fetch stats of new generated compose file
+  stat:
+    path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
+  register: docker_compose_stat
+
+- name: Stopping setup if generated compose file has changed
+  docker_compose:
+    project_src: "{{ compose.dest }}"
+    state: "present"
+    stopped: yes
+    files: "{{ compose.files | default([]) + generated_compose }}"
+  when: docker_compose_prev_stat.stat.exists == "True" and docker_compose_stat.stat.checksum != docker_compose_prev_stat.stat.checksum
 
 - name: Running docker-compose
   docker_compose:
