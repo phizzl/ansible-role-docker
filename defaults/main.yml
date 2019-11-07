@@ -1,10 +1,4 @@
 ---
-## The user that is used to to run docker-compose
-docker_user: "{{ ansible_user }}"
-
-## The user group that is allowed to use docker
-docker_group: ""
-
 ## Configure the directories to run docker-compose.
 ## You also might add a GIT repository to pull the docker-compose.yml from
 ##
@@ -24,18 +18,6 @@ docker_group: ""
 ##    files: ["docker-compose.yml", "docker-compose-development.yml"]
 ## ```
 docker_compose_src: []
-
-## Software dependencies for using docker
-docker_package_dependencies:
-  - git
-  - python
-  - python-setuptools
-  - python-pip
-
-## Required Python packages that should be installed via pip
-docker_pip_dependencies:
-  - docker
-  - docker-compose
 
 # Empty array used for inline compose files
 generated_compose: []

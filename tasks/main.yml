@@ -1,21 +1,4 @@
 ---
-- name: Add user to docker group
-  user:
-    name: "{{ docker_user }}"
-    append: yes
-    groups:
-      - "{{ docker_group }}"
-  when: docker_group != ""
-
-- name: Install package dependencies
-  apt:
-    name: "{{ docker_package_dependencies }}"
-    state: present
-
-- name: Install pip dependencies
-  pip:
-    name: "{{ docker_pip_dependencies }}"
-
 - name: Execute docker-compose tasks
   include_tasks: run-docker-compose.yml
   loop: "{{ docker_compose_src }}"

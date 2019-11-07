@@ -3,7 +3,6 @@ A role for booting a docker-compose setup
 
 ## Requirements
 - Hosts should be bootstrapped for ansible usage (have python,...)
-- Root privileges, eg `become: yes`
 
 ## Role Variables
 
@@ -75,5 +74,4 @@ docker_compose_src:
 - hosts: docker
   roles:
     - role: phizzl.dockercompose
-      become: yes
 ```
