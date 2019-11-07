@@ -22,7 +22,7 @@
   file:
     path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
     state: absent
-  when: docker_compose_prev_stat.stat.exists == "True"
+  when: docker_compose_prev_stat.stat.exists == True
 
 - name: Create docker-compose YAML depending from inline config
   lineinfile:
@@ -58,7 +58,7 @@
     state: "present"
     stopped: yes
     files: "{{ compose.files | default([]) + generated_compose }}"
-  when: docker_compose_prev_stat.stat.exists == "True" and docker_compose_stat.stat.checksum != docker_compose_prev_stat.stat.checksum
+  when: (docker_compose_prev_stat.stat.exists == False and docker_compose_stat.stat.exists == True) or (docker_compose_prev_stat.stat.exists == True and docker_compose_stat.stat.checksum != docker_compose_prev_stat.stat.checksum)
 
 - name: Running docker-compose
   docker_compose:
