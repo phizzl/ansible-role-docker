@@ -3,6 +3,7 @@ A role for booting a docker-compose setup
 
 ## Requirements
 - Hosts should be bootstrapped for ansible usage (have python,...)
+- `docker` and `docker-compose` should be installed. This can be archived by using the role [`nickjj.docker`](https://github.com/nickjj/ansible-docker) for example.
 
 ## Role Variables
 
@@ -12,7 +13,7 @@ A role for booting a docker-compose setup
 | `docker_group`| The group that is allowed to use docker. The user `docker_user` is added to this group when defined | / |
 
 
-#### `docker_compose_src` details
+### `docker_compose_src` details
 
 The docker-compose list is used to define the setups to run or terminate per host.   Each item in
 the list can have following attributes:
@@ -31,7 +32,7 @@ the list can have following attributes:
 | `pre_commands` | List of shell commands to run before docker-compose is started or stopped | no | / |
 | `post_commands` | List of shell commands to run after docker-compose is started or stopped | no | / |
 
-###### Example `vd_docker_compose_src`
+### `docker_compose_src` example
 
 ```yaml
 docker_compose_src:
@@ -62,10 +63,6 @@ docker_compose_src:
     repo: https://github.com/bitnami/bitnami-docker-jenkins.git
     state: absent
 ```
-
-## Dependencies
-
-* nickjj.docker
 
 ## Example Playbook  
 
