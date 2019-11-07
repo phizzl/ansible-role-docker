@@ -62,11 +62,23 @@ docker_compose_src:
     state: absent
 ```
 
-## Example Playbook  
+## Example Playbook
 
 ```yaml
----
 - hosts: docker
   roles:
     - role: phizzl.dockercompose
+```
+
+### Running docker as non-ansible user
+
+If you want to start the Docker setup with a different user than the `ansible_user` you need to become that user.  
+For that you need the permission for `become`. See example below.
+
+```yaml
+- hosts: docker
+  become: yes
+  roles:
+    - role: phizzl.dockercompose
+      become_user: docker
 ```
