@@ -9,9 +9,7 @@ A role for booting a docker-compose setup
 
 | Variable | Description | Default value |
 |----------|-------------|---------------|
-| `docker_user` | The user that runs the setup | `{{ ansible_user }}` |
-| `docker_group`| The group that is allowed to use docker. The user `docker_user` is added to this group when defined | / |
-
+| `docker_compose_src`| See details below | / |
 
 ### `docker_compose_src` details
 

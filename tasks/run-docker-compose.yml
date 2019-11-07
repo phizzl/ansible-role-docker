@@ -3,7 +3,6 @@
   file:
     path: "{{ compose.dest }}"
     state: directory
-    owner: "{{ docker_user }}"
 
 - name: Checkout docker setup
   git:
@@ -13,13 +12,11 @@
     version: "{{ compose.version | default('HEAD') }}"
     key_file: "{{ compose.key_file |default('') }}"
   when: compose.repo is defined and compose.repo != ""
-  become_user: "{{ docker_user }}"
 
 - name: Setting directory permission
   file:
     path: "{{ compose.dest }}"
     state: directory
-    owner: "{{ docker_user }}"
     recurse: true
   when: compose.repo is defined and compose.repo != ""
 
@@ -40,7 +37,6 @@
     create: true
     state: present
     line: "{{ compose.inline }}"
-    owner: "{{ docker_user }}"
   when: compose.inline is defined and compose.inline != ""
 
 - name: Append docker-compose config when inline script is given
@@ -57,7 +53,6 @@
   environment:
     SETUP_STATE: "{{ compose.state | default('present') }}"
   when: compose.pre_commands is defined
-  become_user: "{{ docker_user }}"
 
 - name: Fetch stats of new generated compose file
   stat:
@@ -78,7 +73,6 @@
     state: "{{ compose.state | default('present') }}"
     files: "{{ compose.files | default([]) + generated_compose }}"
     build: "{{ compose.build | default('no') }}"
-  become_user: "{{ docker_user }}"
 
 - name: Execute post cmd
   shell: "{{ item }}"
@@ -88,4 +82,3 @@
   environment:
     SETUP_STATE: "{{ compose.state | default('present') }}"
   when: compose.post_commands is defined
-  become_user: "{{ docker_user }}"
