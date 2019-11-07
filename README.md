@@ -74,6 +74,6 @@ docker_compose_src:
 ---
 - hosts: docker
   roles:
-    - role: phizzl.docker
+    - role: phizzl.dockercompose
       become: yes
 ```
