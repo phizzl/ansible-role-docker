@@ -13,13 +13,6 @@
     key_file: "{{ compose.key_file |default('') }}"
   when: compose.repo is defined and compose.repo != ""
 
-- name: Setting directory permission
-  file:
-    path: "{{ compose.dest }}"
-    state: directory
-    recurse: true
-  when: compose.repo is defined and compose.repo != ""
-
 - name: Fetch stats of generated compose file
   stat:
     path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
