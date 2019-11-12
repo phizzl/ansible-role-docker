@@ -70,7 +70,7 @@
     state: "present"
     stopped: yes
     files: "{{ compose.files | default([]) + generated_compose }}"
-  when: (idc_slurp is defined and idc_prev_slurp is not defined) or (idc_slurp is not defined and idc_prev_slurp is defined) or (idc_slurp.content != idc_prev_slurp.content)
+  when: (idc_slurp is defined and idc_prev_slurp is not defined) or (idc_slurp is not defined and idc_prev_slurp is defined) or (idc_slurp.content is defined and idc_prev_slurp.content is defined and idc_slurp.content != idc_prev_slurp.content)
 
 - name: Running docker-compose
   docker_compose:
