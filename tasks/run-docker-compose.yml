@@ -13,12 +13,22 @@
     key_file: "{{ compose.key_file |default('') }}"
   when: compose.repo is defined and compose.repo != ""
 
+- name: Fetch stats of previously generated compose file
+  stat:
+    path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
+  register: docker_compose_prev_stat
+
+- name: Fetch slurp of previously generated compose file
+  slurp:
+    src: "{{ compose.dest }}/docker-compose-inline-generated.yml"
+  register: idc_prev_slurp
+  when: docker_compose_prev_stat.stat.exists == True
+
 - name: Removing generated docker-compose file if exists
   file:
     path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
     state: absent
-  register: remove_inline_compose_return
-  when: compose.inline == ""
+  when: docker_compose_prev_stat.stat.exists == True
 
 - name: Create docker-compose YAML depending from inline config
   lineinfile:
@@ -26,7 +36,6 @@
     create: true
     state: present
     line: "{{ compose.inline }}"
-  register: create_inline_compose_return
   when: compose.inline is defined and compose.inline != ""
 
 - name: Append docker-compose config when inline script is given
@@ -44,13 +53,24 @@
     SETUP_STATE: "{{ compose.state | default('present') }}"
   when: compose.pre_commands is defined
 
+- name: Fetch stats of new generated compose file
+  stat:
+    path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
+  register: docker_compose_stat
+
+- name: Fetch slurp of generated compose file
+  slurp:
+    src: "{{ compose.dest }}/docker-compose-inline-generated.yml"
+  register: idc_slurp
+  when: docker_compose_stat.stat.exists == True
+
 - name: Stopping setup if generated compose file has changed
   docker_compose:
     project_src: "{{ compose.dest }}"
     state: "present"
     stopped: yes
     files: "{{ compose.files | default([]) + generated_compose }}"
-  when: (create_inline_compose_return is defined and create_inline_compose_return.changed == True ) or (remove_inline_compose_return is defined and remove_inline_compose_return.changed == True)
+  when: (idc_slurp is defined and idc_prev_slurp is not defined) or (idc_slurp is not defined and idc_prev_slurp is defined) or (idc_slurp.content != idc_prev_slurp.content)
 
 - name: Running docker-compose
   docker_compose:
