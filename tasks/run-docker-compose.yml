@@ -38,6 +38,9 @@
     line: "{{ compose.inline }}"
   when: compose.inline is defined and compose.inline != ""
 
+- set_fact:
+    generated_compose: []
+
 - name: Append docker-compose config when inline script is given
   set_fact:
     generated_compose:
