@@ -8,9 +8,10 @@
   git:
     repo: "{{ compose.repo }}"
     dest: "{{ compose.dest }}"
-    accept_hostkey: "{{ compose.accept_hostkey| default('yes') }}"
+    accept_hostkey: "{{ compose.accept_hostkey | default('yes') }}"
     version: "{{ compose.version | default('HEAD') }}"
-    key_file: "{{ compose.key_file |default('') }}"
+    key_file: "{{ compose.key_file | default('') }}"
+    force: "{{ compose.force | default('no') }}"
   when: compose.repo is defined and compose.repo != ""
 
 - name: Fetch stats of previously generated compose file
