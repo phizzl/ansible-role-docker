@@ -12,6 +12,7 @@
     version: "{{ compose.version | default('HEAD') }}"
     key_file: "{{ compose.key_file | default('') }}"
     force: "{{ compose.force | default('no') }}"
+    track_submodules: "{{ compose.track_submodules | default('no') }}"
   when: compose.repo is defined and compose.repo != ""
 
 - name: Fetch stats of previously generated compose file
