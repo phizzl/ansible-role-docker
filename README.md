@@ -30,6 +30,7 @@ the list can have following attributes:
 | `build` | docker-compose build?  | no | false |
 | `pre_commands` | List of shell commands to run before docker-compose is started or stopped | no | / |
 | `post_commands` | List of shell commands to run after docker-compose is started or stopped | no | / |
+| `templates` | Templates to be copied to the setup (before running pre commands) | no | [] |
 
 ### `docker_compose_src` example
 

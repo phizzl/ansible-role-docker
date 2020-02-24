@@ -1,4 +1,7 @@
 ---
+- set_fact:
+    compose_templates: []
+
 - name: Create destination directory
   file:
     path: "{{ compose.dest }}"
@@ -48,6 +51,21 @@
     generated_compose:
       - "{{ compose.dest }}/docker-compose-inline-generated.yml"
   when: compose.inline is defined and compose.inline != ""
+
+- name: Determine templates to copy to compose setup
+  set_fact:
+    compose_templates: "{{ compose_templates }} + [ { 'src': '{{ item.src }}', 'dest': '{{ compose.dest  }}/{{ item.dest }}' } ]"
+  loop: "{{ compose.templates | default([]) }}"
+
+- name: Create template directories if not exist
+  file:
+    path: "{{ compose.dest }}/{{ item.dest | dirname }}"
+    state: directory
+  loop: "{{ compose_templates }}"
+
+- name: Copy templates to setup if configured
+  template: "{{ item }}"
+  loop: "{{ compose_templates }}"
 
 - name: Execute pre commands
   shell: "{{ item }}"
