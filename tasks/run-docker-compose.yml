@@ -1,5 +1,6 @@
 ---
-- set_fact:
+- name: Setting facts for processing role
+  set_fact:
     git_defaults:
       accept_hostkey: yes
     docker_compose_templates: []
