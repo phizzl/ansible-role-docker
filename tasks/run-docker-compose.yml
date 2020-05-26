@@ -1,112 +1,113 @@
 ---
 - set_fact:
-    compose_templates: []
+    git_defaults:
+      accept_hostkey: yes
+    docker_compose_templates: []
+    docker_compose_files: []
+    docker_compose_files_changed: no
+    docker_compose_generated_filename: "{{ docker.definition_filename | default('docker-compose-generated.yml') }}"
+    docker_compose_generated_filepath: "{{ docker_compose_generated_filepath }}"
+    slurp_docker_compose_generated:
+      content: ''
+    slurp_docker_compose_generated_new:
+      content: ''
 
 - name: Create destination directory
   file:
-    path: "{{ compose.dest }}"
+    path: "{{ docker.dest }}"
     state: directory
 
-- name: Checkout docker setup
-  git:
-    repo: "{{ compose.repo }}"
-    dest: "{{ compose.dest }}"
-    accept_hostkey: "{{ compose.accept_hostkey | default('yes') }}"
-    version: "{{ compose.version | default('HEAD') }}"
-    key_file: "{{ compose.key_file | default('') }}"
-    force: "{{ compose.force | default('no') }}"
-    track_submodules: "{{ compose.track_submodules | default('no') }}"
-  when: compose.repo is defined and compose.repo != ""
+- name: Get docker-compose setup from Git
+  git: "{{ git_defaults | combine(docker.git) }}"
+  when: docker.git is defined
 
-- name: Fetch stats of previously generated compose file
+- name: Fetch stats of generated docker compose file
   stat:
-    path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
-  register: docker_compose_prev_stat
+    path: "{{ docker_compose_generated_filepath }}"
+  register: stat_docker_compose_generated
 
-- name: Fetch slurp of previously generated compose file
+- name: Fetch slurp of generated docker compose file
   slurp:
-    src: "{{ compose.dest }}/docker-compose-inline-generated.yml"
-  register: idc_prev_slurp
-  when: docker_compose_prev_stat.stat.exists == True
+    src: "{{ docker_compose_generated_filepath }}"
+  register: slurp_docker_compose_generated
+  when: stat_docker_compose_generated.stat.exists == True
 
 - name: Removing generated docker-compose file if exists
   file:
-    path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
+    path: "{{ docker_compose_generated_filepath }}"
     state: absent
-  when: docker_compose_prev_stat.stat.exists == True
+  when: stat_docker_compose_generated.stat.exists == True
 
-- name: Create docker-compose YAML depending from inline config
+- name: Generate docker-compose from YAML definition
   lineinfile:
-    path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
+    path: "{{ docker_compose_generated_filepath }}"
     create: true
     state: present
-    line: "{{ compose.inline }}"
-  when: compose.inline is defined and compose.inline != ""
+    line: "{{ docker.definition | to_yaml }}"
+  when: docker.definition is defined
 
-- set_fact:
-    generated_compose: []
-
-- name: Append docker-compose config when inline script is given
+- name: Prepare to use generated docker-compose file
   set_fact:
-    generated_compose:
-      - "{{ compose.dest }}/docker-compose-inline-generated.yml"
-  when: compose.inline is defined and compose.inline != ""
+    docker_compose_files:
+      - "{{ docker_compose_generated_filename }}"
+  when: docker.definition is defined
 
 - name: Determine templates to copy to compose setup
   set_fact:
-    compose_templates: "{{ compose_templates }} + [ { 'src': '{{ item.src }}', 'dest': '{{ compose.dest  }}/{{ item.dest }}' } ]"
-  loop: "{{ compose.templates | default([]) }}"
+    compose_templates: "{{ docker_compose_templates }} + [ { 'src': '{{ item.src }}', 'dest': '{{ docker.dest  }}/{{ item.dest }}' } ]"
+  loop: "{{ docker.templates | default([]) }}"
 
 - name: Create template directories if not exist
   file:
-    path: "{{ compose.dest }}/{{ item.dest | dirname }}"
+    path: "{{ docker.dest }}/{{ item.dest | dirname }}"
     state: directory
-  loop: "{{ compose_templates }}"
+  loop: "{{ docker_compose_templates }}"
 
 - name: Copy templates to setup if configured
   template: "{{ item }}"
-  loop: "{{ compose_templates }}"
+  loop: "{{ docker_compose_templates }}"
+
+- name: Configure docker volumes
+  docker_volume: "{{ item }}"
+  loop: "{{ docker.volumes | default([]) }}"
 
 - name: Execute pre commands
   shell: "{{ item }}"
   args:
-    chdir: "{{ compose.dest }}"
-  loop: "{{ compose.pre_commands }}"
+    chdir: "{{ docker.dest }}"
   environment:
-    SETUP_STATE: "{{ compose.state | default('present') }}"
-  when: compose.pre_commands is defined
+    SETUP_STATE: "{{ docker.state | default('present') }}"
+  loop: "{{ docker.pre_commands | default([]) }}"
 
 - name: Fetch stats of new generated compose file
   stat:
-    path: "{{ compose.dest }}/docker-compose-inline-generated.yml"
-  register: docker_compose_stat
+    path: "{{ docker_compose_generated_filepath }}"
+  register: stat_docker_compose_generated_new
 
-- name: Fetch slurp of generated compose file
+- name: Fetch slurp of new generated compose file
   slurp:
-    src: "{{ compose.dest }}/docker-compose-inline-generated.yml"
-  register: idc_slurp
-  when: docker_compose_stat.stat.exists == True
+    src: "{{ docker_compose_generated_filepath }}"
+  register: slurp_docker_compose_generated_new
+  when: stat_docker_compose_generated_new.stat.exists == True
 
-- name: Stopping setup if generated compose file has changed
-  docker_compose:
-    project_src: "{{ compose.dest }}"
-    state: "present"
-    stopped: yes
-    files: "{{ compose.files | default([]) + generated_compose }}"
-  when: (idc_slurp is defined and idc_prev_slurp is not defined) or (idc_slurp is not defined and idc_prev_slurp is defined) or (idc_slurp.content is defined and idc_prev_slurp.content is defined and idc_slurp.content != idc_prev_slurp.content)
+- name: Check if docker-compose setup has changed
+  set_fact:
+    docker_compose_files_changed: yes
+  when: (stat_docker_compose_generated_new.stat.exists != stat_docker_compose_generated.stat.exists) or (slurp_docker_compose_generated_new.content != slurp_docker_compose_generated.content)
 
 - name: Running docker-compose
   docker_compose:
-    project_src: "{{ compose.dest }}"
-    state: "{{ compose.state | default('present') }}"
-    files: "{{ compose.files | default([]) + generated_compose }}"
-    build: "{{ compose.build | default('no') }}"
+    project_src: "{{ docker.dest }}"
+    state: "{{ docker.state is defined and docker.state == \"stopped\" ? 'present' : docker.state | default('present') }}"
+    restarted: "{{ docker_compose_files_changed }}"
+    stopped: "{{ docker.state is defined and docker.state == \"stopped\" ? 'yes' : 'no' }}"
+    files: "{{ docker.files | default([\"docker-compose.yml\"]) + generated_compose }}"
+    build: "{{ docker.build | default('no') }}"
 
-- name: Execute post cmd
+- name: Execute post commands
   shell: "{{ item }}"
   args:
-    chdir: "{{ compose.dest }}"
-  loop: "{{ compose.post_commands }}"
+    chdir: "{{ docker.dest }}"
+  loop: "{{ docker.post_commands | default([]) }}"
   environment:
-    SETUP_STATE: "{{ compose.state | default('present') }}"
-  when: compose.post_commands is defined
+    SETUP_STATE: "{{ docker.state | default('present') }}"

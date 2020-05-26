@@ -3,4 +3,4 @@
   include_tasks: run-docker-compose.yml
   loop: "{{ docker_compose_src }}"
   loop_control:
-    loop_var: compose
+    loop_var: docker
