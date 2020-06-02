@@ -22,61 +22,42 @@ the list can have following attributes:
 | `git` | See [official docs](https://docs.ansible.com/ansible/latest/modules/git_module.html) | no | / |
 | `definition` | Define docker-compose file in this YAML. You can put more YAML or a string containing YAML here | no | / |
 | `files` | The docker-compose.yml files that should be used when running the setup  | no | ["docker-compose.yml"] |
-| `state` | state of the setup (present, stopped, restarted or absent) | no | present |
+| `state` | state of the setup (present, stopped or absent) | no | present |
 | `build` | docker-compose build?  | no | false |
 | `pre_commands` | List of shell commands to run before docker-compose is started or stopped | no | / |
 | `post_commands` | List of shell commands to run after docker-compose is started or stopped | no | / |
 | `templates` | Templates to be copied to the setup (before running pre commands, path relative to `dest`) | no | [] |
 
-### `docker_compose_src` example
+## Example Playbooks
 
+### Run from git
 ```yaml
-docker_compose_src:
-  - dest: /opt/vd-redmine
-    repo: https://github.com/bitnami/bitnami-docker-redmine.git
-    files:
-      - docker-compose.yml
-      - docker-compose.development.yml
-
-  - dest: /opt/vd-jenkins
-    inline: |
-      version: 3
-      services:
-        db:
-          image: mysql:5.7
-          restart: always
-          environment:
-            MYSQL_DATABASE: 'db'
-            MYSQL_USER: 'user'
-            MYSQL_PASSWORD: 'password'
-            MYSQL_ROOT_PASSWORD: 'password'
-          ports:
-            - '3306:3306'
-          volumes:
-            - my-db:/var/lib/mysql
-    
-  - dest: /opt/vd-project
-    repo: https://github.com/bitnami/bitnami-docker-jenkins.git
-    state: absent
-```
-
-## Example Playbook
-
-```yaml
+---
 - hosts: docker
   roles:
     - role: phizzl.dockercompose
+      vars:
+        docker_compose_src:
+          - dest: /tmp/test-sentry
+            git:
+              repo: https://github.com/getsentry/onpremise.git
+              version: 10.0.0
+            pre_commands:
+              - "[ -f installed.lock ] || (CI=1 bash install.sh && touch installed.lock)"
 ```
 
-### Running docker as non-ansible user
-
-If you want to start the Docker setup with a different user than the `ansible_user` you need to become that user.  
-For that you need the permission for `become`. See example below.
-
+### Run by definition
 ```yaml
+---
 - hosts: docker
-  become: yes
   roles:
     - role: phizzl.dockercompose
-      become_user: docker
+      vars:
+        docker_compose_src:
+          - dest: /tmp/test-apache
+            definition:
+              version: '3.3'
+              services:
+                web:
+                  image: phizzl/php:7.4-apache-ubuntu-xenial
 ```
