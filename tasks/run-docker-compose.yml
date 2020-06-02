@@ -3,11 +3,13 @@
   set_fact:
     git_defaults:
       accept_hostkey: yes
+      depth: 1
+      dest: "{{ docker.dest }}"
     docker_compose_templates: []
     docker_compose_files: []
     docker_compose_files_changed: no
-    docker_compose_generated_filename: "{{ docker.definition_filename | default('docker-compose-generated.yml') }}"
-    docker_compose_generated_filepath: "{{ docker_compose_generated_filepath }}"
+    docker_compose_generated_filename: "{{ docker.definition_filename | default('docker-compose-ansible.yml') }}"
+    docker_compose_generated_filepath: "{{ docker.dest }}/{{ docker.definition_filename | default('docker-compose-ansible.yml') }}"
     slurp_docker_compose_generated:
       content: ''
     slurp_docker_compose_generated_new:
@@ -44,7 +46,7 @@
     path: "{{ docker_compose_generated_filepath }}"
     create: true
     state: present
-    line: "{{ docker.definition | to_yaml }}"
+    line: "{{ docker.definition|to_nice_yaml if docker.definition is mapping else docker.definition|string}}"
   when: docker.definition is defined
 
 - name: Prepare to use generated docker-compose file
@@ -52,6 +54,11 @@
     docker_compose_files:
       - "{{ docker_compose_generated_filename }}"
   when: docker.definition is defined
+
+- name: Prepend docker-compose.yml as default
+  set_fact:
+    docker_compose_files: "{{ docker.files }} + {{ docker_compose_files }}"
+  when: docker.files is defined
 
 - name: Determine templates to copy to compose setup
   set_fact:
@@ -95,14 +102,15 @@
   set_fact:
     docker_compose_files_changed: yes
   when: (stat_docker_compose_generated_new.stat.exists != stat_docker_compose_generated.stat.exists) or (slurp_docker_compose_generated_new.content != slurp_docker_compose_generated.content)
+  ignore_errors: yes
 
 - name: Running docker-compose
   docker_compose:
     project_src: "{{ docker.dest }}"
-    state: "{{ docker.state is defined and docker.state == \"stopped\" ? 'present' : docker.state | default('present') }}"
+    state: "{{ 'present' if docker.state is defined and docker.state == \"stopped\" else docker.state | default('present') }}"
     restarted: "{{ docker_compose_files_changed }}"
-    stopped: "{{ docker.state is defined and docker.state == \"stopped\" ? 'yes' : 'no' }}"
-    files: "{{ docker.files | default([\"docker-compose.yml\"]) + generated_compose }}"
+    stopped: "{{ 'yes' if docker.state is defined and docker.state == \"stopped\" else 'no' }}"
+    files: "{{ [\"docker-compose.yml\"] if docker_compose_files|length < 1 else docker_compose_files }}"
     build: "{{ docker.build | default('no') }}"
 
 - name: Execute post commands

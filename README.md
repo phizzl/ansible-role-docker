@@ -19,13 +19,9 @@ the list can have following attributes:
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
 | `dest` | Destination to store the setup | yes | / |
-| `repo` | A GIT repository to clone the docker-compose setup from | no | / |
-| `accept_hostkey` | Accept hostkeys when using a GIT repo | no | yes |
-| `version` | The version for the GIT repo to checkout | no | HEAD |
-| `key_file` | The private key file to use for GIT | no | / |
-| `track_submodules` | Option to track GIT submodules | no | / |
-| `inline` | Inline docker-compose.yml | no | / |
-| `files` | The docker-compose.yml files that should be used when running the setup  | no | [] |
+| `git` | See [official docs](https://docs.ansible.com/ansible/latest/modules/git_module.html) | no | / |
+| `definition` | Define docker-compose file in this YAML. You can put more YAML or a string containing YAML here | no | / |
+| `files` | The docker-compose.yml files that should be used when running the setup  | no | ["docker-compose.yml"] |
 | `state` | state of the setup (present, stopped, restarted or absent) | no | present |
 | `build` | docker-compose build?  | no | false |
 | `pre_commands` | List of shell commands to run before docker-compose is started or stopped | no | / |

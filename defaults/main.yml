@@ -18,6 +18,3 @@
 ##    files: ["docker-compose.yml", "docker-compose-development.yml"]
 ## ```
 docker_compose_src: []
-
-# Empty array used for inline compose files
-generated_compose: []
