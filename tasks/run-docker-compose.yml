@@ -79,14 +79,6 @@
   docker_volume: "{{ item }}"
   loop: "{{ docker.volumes | default([]) }}"
 
-- name: Execute pre commands
-  shell: "{{ item }}"
-  args:
-    chdir: "{{ docker.dest }}"
-  environment:
-    SETUP_STATE: "{{ docker.state | default('present') }}"
-  loop: "{{ docker.pre_commands | default([]) }}"
-
 - name: Fetch stats of new generated compose file
   stat:
     path: "{{ docker_compose_generated_filepath }}"
@@ -104,6 +96,15 @@
   when: (stat_docker_compose_generated_new.stat.exists != stat_docker_compose_generated.stat.exists) or (slurp_docker_compose_generated_new.content != slurp_docker_compose_generated.content)
   ignore_errors: yes
 
+- name: Execute pre commands
+  shell: "{{ item }}"
+  args:
+    chdir: "{{ docker.dest }}"
+  environment:
+    SETUP_STATE: "{{ docker.state | default('present') }}"
+    SETUP_CHANGED: "{{ '1' if docker_compose_files_changed else '0' }}"
+  loop: "{{ docker.pre_commands | default([]) }}"
+
 - name: Running docker-compose
   docker_compose:
     project_src: "{{ docker.dest }}"
@@ -120,3 +121,4 @@
   loop: "{{ docker.post_commands | default([]) }}"
   environment:
     SETUP_STATE: "{{ docker.state | default('present') }}"
+    SETUP_CHANGED: "{{ '1' if docker_compose_files_changed else '0' }}"
