@@ -9,7 +9,7 @@
     docker_compose_files: []
     docker_compose_files_changed: no
     docker_compose_generated_filename: "{{ docker.definition_filename | default('docker-compose-ansible.yml') }}"
-    docker_compose_generated_filepath: "{{ docker.dest }}/{{ docker.definition_filename | default('docker-compose-ansible.yml') }}"
+    docker_compose_generated_filepath: "{{ docker.dest }}/{{ docker.definition_filename | default('docker-compose.ansible.yml') }}"
     slurp_docker_compose_generated:
       content: ''
     slurp_docker_compose_generated_new:
