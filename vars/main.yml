@@ -13,4 +13,5 @@ docker_compose_item_defaults:
   git:
     accept_hostkey: yes
     depth: 1
+    version: HEAD
   restart_on_change: yes
