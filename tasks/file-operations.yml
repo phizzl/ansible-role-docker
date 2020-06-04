@@ -25,3 +25,7 @@
 - name: Manage templates
   template: "{{ item }}"
   loop: "{{ compose_templates }}"
+
+- name: Manage synchronizations
+  synchronize: "{{ item }}"
+  loop: "{{ docker.syncs }}"
