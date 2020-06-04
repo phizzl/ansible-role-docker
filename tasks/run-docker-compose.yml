@@ -44,7 +44,7 @@
     path: "{{ compose_generated_filepath }}"
     create: true
     state: present
-    line: "{{ docker.definition|to_nice_yaml if docker.definition is mapping else docker.definition|string}}"
+    line: "{{ docker.definition|to_nice_yaml if docker.definition is mapping else docker.definition|string }}"
   when: docker.definition is defined
 
 - name: Prepare to use generated docker-compose file
