@@ -1,19 +1,17 @@
 ---
+- name: Applying default configs to definition
+  set_fact:
+    docker: "{{ docker_compose_item_defaults | combine(docker_compose_item) }}"
+
 - name: Setting facts for processing role
   set_fact:
-    git_defaults:
-      accept_hostkey: yes
-      depth: 1
-      dest: "{{ docker.dest }}"
-    docker_compose_templates: []
-    docker_compose_files: []
-    docker_compose_files_changed: no
-    docker_compose_generated_filename: "{{ docker.definition_filename | default('docker-compose-ansible.yml') }}"
-    docker_compose_generated_filepath: "{{ docker.dest }}/{{ docker.definition_filename | default('docker-compose.ansible.yml') }}"
-    slurp_docker_compose_generated:
-      content: ''
-    slurp_docker_compose_generated_new:
-      content: ''
+    compose_templates: []
+    compose_copies: []
+    compose_files: []
+    compose_definition_files: []
+    compose_definition_files_changed: no
+    compose_restarted: no
+    compose_generated_filepath: "{{ docker.dest }}/{{ docker.definition_filename }}"
 
 - name: Create destination directory
   file:
@@ -21,29 +19,29 @@
     state: directory
 
 - name: Get docker-compose setup from Git
-  git: "{{ git_defaults | combine(docker.git) }}"
-  when: docker.git is defined
+  git: "{{ docker.git | combine({\"dest\": docker.dest}) }}"
+  when: docker.git.repo is defined
 
-- name: Fetch stats of generated docker compose file
+- name: Fetch stats of previously generated docker compose file
   stat:
-    path: "{{ docker_compose_generated_filepath }}"
-  register: stat_docker_compose_generated
+    path: "{{ compose_generated_filepath }}"
+  register: stat_prev_compose_generated
 
-- name: Fetch slurp of generated docker compose file
+- name: Fetch slurp of previously generated docker compose file
   slurp:
-    src: "{{ docker_compose_generated_filepath }}"
-  register: slurp_docker_compose_generated
-  when: stat_docker_compose_generated.stat.exists == True
+    src: "{{ compose_generated_filepath }}"
+  register: slurp_prev_compose_generated
+  when: stat_prev_compose_generated.stat.exists
 
-- name: Removing generated docker-compose file if exists
+- name: Removing previously generated docker-compose file if it exists
   file:
-    path: "{{ docker_compose_generated_filepath }}"
+    path: "{{ compose_generated_filepath }}"
     state: absent
-  when: stat_docker_compose_generated.stat.exists == True
+  when: stat_prev_compose_generated.stat.exists
 
 - name: Generate docker-compose from YAML definition
   lineinfile:
-    path: "{{ docker_compose_generated_filepath }}"
+    path: "{{ compose_generated_filepath }}"
     create: true
     state: present
     line: "{{ docker.definition|to_nice_yaml if docker.definition is mapping else docker.definition|string}}"
@@ -51,74 +49,72 @@
 
 - name: Prepare to use generated docker-compose file
   set_fact:
-    docker_compose_files:
-      - "{{ docker_compose_generated_filename }}"
+    compose_definition_files:
+      - "{{ docker.definition_filename }}"
   when: docker.definition is defined
 
 - name: Prepend docker-compose.yml as default
   set_fact:
-    docker_compose_files: "{{ docker.files }} + {{ docker_compose_files }}"
-  when: docker.files is defined
+    compose_definition_files: "{{ docker.compose_files }} + {{ compose_definition_files }}"
+  when: docker.compose_files is defined
 
-- name: Determine templates to copy to compose setup
-  set_fact:
-    compose_templates: "{{ docker_compose_templates }} + [ { 'src': '{{ item.src }}', 'dest': '{{ docker.dest  }}/{{ item.dest }}' } ]"
-  loop: "{{ docker.templates | default([]) }}"
+- name: Running file based operations
+  include_tasks: file-operations.yml
 
-- name: Create template directories if not exist
-  file:
-    path: "{{ docker.dest }}/{{ item.dest | dirname }}"
-    state: directory
-  loop: "{{ docker_compose_templates }}"
+- name: Running docker based operations before actual docker-compose
+  include_tasks: docker-operations.yml
 
-- name: Copy templates to setup if configured
-  template: "{{ item }}"
-  loop: "{{ docker_compose_templates }}"
-
-- name: Configure docker volumes
-  docker_volume: "{{ item }}"
-  loop: "{{ docker.volumes | default([]) }}"
-
-- name: Fetch stats of new generated compose file
+- name: Fetch stats of next generated compose file
   stat:
-    path: "{{ docker_compose_generated_filepath }}"
-  register: stat_docker_compose_generated_new
+    path: "{{ compose_generated_filepath }}"
+  register: stat_next_compose_generated
 
 - name: Fetch slurp of new generated compose file
   slurp:
-    src: "{{ docker_compose_generated_filepath }}"
-  register: slurp_docker_compose_generated_new
-  when: stat_docker_compose_generated_new.stat.exists == True
+    src: "{{ compose_generated_filepath }}"
+  register: slurp_next_compose_generated
+  when: stat_next_compose_generated.stat.exists == True
 
 - name: Check if docker-compose setup has changed
   set_fact:
-    docker_compose_files_changed: yes
-  when: (stat_docker_compose_generated_new.stat.exists != stat_docker_compose_generated.stat.exists) or (slurp_docker_compose_generated_new.content != slurp_docker_compose_generated.content)
-  ignore_errors: yes
+    compose_definition_files_changed: yes
+  when: >
+    (stat_next_compose_generated.stat.exists != stat_prev_compose_generated.stat.exists) or
+    (
+      (stat_next_compose_generated.stat.exists and stat_prev_compose_generated.stat.exists) and
+      (slurp_next_compose_generated.content != slurp_prev_compose_generated.content)
+    )
+
+- name: Check if the docker-compose setup needs to be restarted
+  set_fact:
+    compose_restarted: yes
+  when: compose_definition_files_changed and docker.restart_on_change
 
 - name: Execute pre commands
   shell: "{{ item }}"
   args:
     chdir: "{{ docker.dest }}"
   environment:
-    SETUP_STATE: "{{ docker.state | default('present') }}"
-    SETUP_CHANGED: "{{ '1' if docker_compose_files_changed else '0' }}"
-  loop: "{{ docker.pre_commands | default([]) }}"
+    SETUP_STATE: "{{ docker.state }}"
+    SETUP_CHANGED: "{{ '1' if compose_definition_files_changed else '0' }}"
+    SETUP_RESTARTED: "{{ '1' if compose_restarted else '0' }}"
+  loop: "{{ docker.pre_commands }}"
 
 - name: Running docker-compose
   docker_compose:
     project_src: "{{ docker.dest }}"
-    state: "{{ 'present' if docker.state is defined and docker.state == \"stopped\" else docker.state | default('present') }}"
-    restarted: "{{ docker_compose_files_changed }}"
-    stopped: "{{ 'yes' if docker.state is defined and docker.state == \"stopped\" else 'no' }}"
-    files: "{{ [\"docker-compose.yml\"] if docker_compose_files|length < 1 else docker_compose_files }}"
-    build: "{{ docker.build | default('no') }}"
+    state: "{{ 'present' if docker.state == \"stopped\" else docker.state }}"
+    restarted: "{{ compose_restarted }}"
+    stopped: "{{ 'yes' if docker.state == \"stopped\" else 'no' }}"
+    files: "{{ [\"docker-compose.yml\"] if compose_definition_files|length < 1 else compose_definition_files }}"
+    build: "{{ docker.build }}"
 
 - name: Execute post commands
   shell: "{{ item }}"
   args:
     chdir: "{{ docker.dest }}"
-  loop: "{{ docker.post_commands | default([]) }}"
+  loop: "{{ docker.post_commands }}"
   environment:
-    SETUP_STATE: "{{ docker.state | default('present') }}"
-    SETUP_CHANGED: "{{ '1' if docker_compose_files_changed else '0' }}"
+    SETUP_STATE: "{{ docker.state }}"
+    SETUP_CHANGED: "{{ '1' if compose_definition_files_changed else '0' }}"
+    SETUP_RESTARTED: "{{ '1' if compose_restarted else '0' }}"

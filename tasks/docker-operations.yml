@@ -1,0 +1,8 @@
+---
+- name: Configure docker volumes
+  docker_volume: "{{ item }}"
+  loop: "{{ docker.volumes }}"
+
+- name: Configure networks
+  docker_network: "{{ item }}"
+  loop: "{{ docker.networks }}"

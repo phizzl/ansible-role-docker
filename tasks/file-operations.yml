@@ -1,0 +1,27 @@
+---
+- name: Preparing paths for files and directories to manage
+  set_fact:
+    compose_files: "{{ compose_files }} + [ {{ item | combine({ \"path\": docker.dest + \"/\" + item.path }) }} ]"
+  loop: "{{ docker.files }}"
+
+- name: Preparing copies to manage
+  set_fact:
+    compose_copies: "{{ compose_copies }} + [ {{ item | combine({ \"dest\": docker.dest + \"/\" + item.dest }) }} ]"
+  loop: "{{ docker.copies }}"
+
+- name: Preparing templates to manage
+  set_fact:
+    compose_templates: "{{ compose_templates }} + {{ item | combine({ \"dest\": docker.dest + \"/\" + item.dest }) }} ]"
+  loop: "{{ docker.templates }}"
+
+- name: Manage files and directories
+  file: "{{ item }}"
+  loop: "{{ compose_files }}"
+
+- name: Manage file and directory copies
+  copy: "{{ item }}"
+  loop: "{{ compose_copies }}"
+
+- name: Manage templates
+  template: "{{ item }}"
+  loop: "{{ compose_templates }}"

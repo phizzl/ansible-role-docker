@@ -1,0 +1,16 @@
+docker_compose_item_defaults:
+  state: present
+  build: no
+  compose_files: []
+  templates: []
+  copies: []
+  files: []
+  volumes: []
+  networks: []
+  pre_commands: []
+  post_commands: []
+  definition_filename: docker-compose.ansible.yml
+  git:
+    accept_hostkey: yes
+    depth: 1
+  restart_on_change: yes
