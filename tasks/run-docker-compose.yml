@@ -73,7 +73,7 @@
   slurp:
     src: "{{ compose_generated_filepath }}"
   register: slurp_next_compose_generated
-  when: stat_next_compose_generated.stat.exists == True
+  when: stat_next_compose_generated.stat.exists
 
 - name: Check if docker-compose setup has changed
   set_fact:
