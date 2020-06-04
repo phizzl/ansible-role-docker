@@ -11,6 +11,7 @@
     compose_definition_files: []
     compose_definition_files_changed: no
     compose_restarted: no
+    compose_stopped: no
     compose_generated_filepath: "{{ docker.dest }}/{{ docker.definition_filename }}"
 
 - name: Create destination directory
@@ -98,14 +99,15 @@
     SETUP_STATE: "{{ docker.state }}"
     SETUP_CHANGED: "{{ '1' if compose_definition_files_changed else '0' }}"
     SETUP_RESTARTED: "{{ '1' if compose_restarted else '0' }}"
+    SETUP_STOPPED: "{{ '1' if docker.stopped else '0' }}"
   loop: "{{ docker.pre_commands }}"
 
 - name: Running docker-compose
   docker_compose:
     project_src: "{{ docker.dest }}"
-    state: "{{ 'present' if docker.state == \"stopped\" else docker.state }}"
+    state: "{{ docker.state }}"
     restarted: "{{ compose_restarted }}"
-    stopped: "{{ 'yes' if docker.state == \"stopped\" else 'no' }}"
+    stopped: "{{ docker.stopped }}"
     files: "{{ [\"docker-compose.yml\"] if compose_definition_files|length < 1 else compose_definition_files }}"
     build: "{{ docker.build }}"
 
@@ -118,3 +120,4 @@
     SETUP_STATE: "{{ docker.state }}"
     SETUP_CHANGED: "{{ '1' if compose_definition_files_changed else '0' }}"
     SETUP_RESTARTED: "{{ '1' if compose_restarted else '0' }}"
+    SETUP_STOPPED: "{{ '1' if docker.stopped else '0' }}"

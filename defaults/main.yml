@@ -1,20 +1,3 @@
 ---
-## Configure the directories to run docker-compose.
-## You also might add a GIT repository to pull the docker-compose.yml from
-##
-## An example configuration you look like this:
-## ```yaml
-## docker_compose_src:
-##  # Switch into the directory and run `docker-compose up -d`
-##  - dest: /home/docker/jenkins
-##  # Clone from GIT and run docker-compose
-##  - repo: https://github.com/bitnami/bitnami-docker-redmine.git
-##    dest: /home/docker/redmine
-##  # Ensure a service is not running
-##  - dest: /home/docker/jenkins
-##    state: absent
-##  # Provide multiple compose files for docker-compose
-##  - dest: /home/docker/gitlab
-##    files: ["docker-compose.yml", "docker-compose-development.yml"]
-## ```
-docker_compose_src: []
+## See README.md for  examples and details
+docker_compose_setups: []

@@ -1,6 +1,6 @@
 ---
 - name: Execute docker-compose tasks
   include_tasks: run-docker-compose.yml
-  loop: "{{ docker_compose_src }}"
+  loop: "{{ docker_compose_setups }}"
   loop_control:
     loop_var: docker_compose_item

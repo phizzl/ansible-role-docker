@@ -9,9 +9,9 @@ A role for booting a docker-compose setup
 
 | Variable | Description | Default value |
 |----------|-------------|---------------|
-| `docker_compose_src`| See details below | / |
+| `docker_compose_setups`| See details below | / |
 
-### `docker_compose_src` details
+### `docker_compose_setups` details
 
 The docker-compose list is used to define the setups to run or terminate per host.   Each item in
 the list can have following attributes:
@@ -26,9 +26,9 @@ the list can have following attributes:
 | `build` | docker-compose build?  | no | no |
 | `volumes` | List of volumes to manage. See the [official docs](https://docs.ansible.com/ansible/latest/modules/docker_volume_module.html). | no | [] |
 | `build` | List of networks to manage. See the [officeial docs](https://docs.ansible.com/ansible/latest/modules/docker_network_module.html). | no | [] |
-| `files` | List of files to manage. For each file item the defined `dest` of this `docker_compose_src` item is automatically prepended to the file items required `path`. See the [official docs](https://docs.ansible.com/ansible/latest/modules/file_module.html). | no | [] |
-| `copies` | List of file and directories to copy. For each copy item the defined `dest` of this `docker_compose_src` item is automatically prepended to the copy items required `dest`. See the [official docs](https://docs.ansible.com/ansible/latest/modules/copy_module.html). | no | [] |
-| `templates` | List of templates to copy. For each copy item the defined `dest` of this `docker_compose_src` item is automatically prepended to the copy items required `dest`. See the [official docs](https://docs.ansible.com/ansible/latest/modules/template_module.html). | no | [] |
+| `files` | List of files to manage. For each file item the defined `dest` of this `docker_compose_setups` item is automatically prepended to the file items required `path`. See the [official docs](https://docs.ansible.com/ansible/latest/modules/file_module.html). | no | [] |
+| `copies` | List of file and directories to copy. For each copy item the defined `dest` of this `docker_compose_setups` item is automatically prepended to the copy items required `dest`. See the [official docs](https://docs.ansible.com/ansible/latest/modules/copy_module.html). | no | [] |
+| `templates` | List of templates to copy. For each copy item the defined `dest` of this `docker_compose_setups` item is automatically prepended to the copy items required `dest`. See the [official docs](https://docs.ansible.com/ansible/latest/modules/template_module.html). | no | [] |
 | `pre_commands` | List of shell commands to run before docker-compose is started or stopped. See also the additional envs vars section below. | no | / |
 | `post_commands` | List of shell commands to run after docker-compose is started or stopped. See also the additional envs vars section below. | no | / |
 | `restart_on_change` | Option to automatically restart the container if the docker-compose setup has changed. | no | yes |
@@ -39,9 +39,11 @@ During the execution of the pre and post commands there are additional environme
 
 | Variable | Description |
 |----------|-------------|
-| `SETUP_STATE`| Contains the given `state` of this `docker_compose_src` item |
+| `SETUP_STATE`| Contains the given `state` of this `docker_compose_setups` item |
 | `SETUP_CHANGED`| Contains `1` if some docker-compose file had changed |
 | `SETUP_RESTARTED`| Contains `1` if the setup will be or has been restarted. |
+| `SETUP_STOPPED`| Contains `1` if `stopped` of `docker_compose_setups` is set to `yes` |
+
 
 ## Example Playbooks
 
@@ -52,7 +54,7 @@ During the execution of the pre and post commands there are additional environme
   roles:
     - role: phizzl.dockercompose
       vars:
-        docker_compose_src:
+        docker_compose_setups:
           - dest: /tmp/test-sentry
             git:
               repo: https://github.com/getsentry/onpremise.git
@@ -68,7 +70,7 @@ During the execution of the pre and post commands there are additional environme
   roles:
     - role: phizzl.dockercompose
       vars:
-        docker_compose_src:
+        docker_compose_setups:
           - dest: /tmp/test-apache
             definition:
               version: '3.3'
@@ -85,7 +87,7 @@ During the execution of the pre and post commands there are additional environme
   roles:
     - role: phizzl.dockercompose
       vars:
-        docker_compose_src:
+        docker_compose_setups:
           - dest: /tmp/test-apache
             # If you have a `definition` you are required to explicitly 
             # set which files should be additionally included - even the 
@@ -106,7 +108,7 @@ During the execution of the pre and post commands there are additional environme
   roles:
     - role: phizzl.dockercompose
       vars:
-        docker_compose_src:
+        docker_compose_setups:
           - dest: /tmp/test-apache
             git:
               repo: https://github.com/johndoe/awesome.git
