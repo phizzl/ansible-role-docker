@@ -75,4 +75,41 @@ During the execution of the pre and post commands there are additional environme
               services:
                 web:
                   image: phizzl/php:7.4-apache-ubuntu-xenial
+            restart_on_change: no
+```
+
+### Combine definition and existing file 
+```yaml
+---
+- hosts: docker
+  roles:
+    - role: phizzl.dockercompose
+      vars:
+        docker_compose_src:
+          - dest: /tmp/test-apache
+            # If you have a `definition` you are required to explicitly 
+            # set which files should be additionally included - even the 
+            # default `docker-compose.yml` file
+            compose_files:
+              - docker-compose.yml
+            definition:
+              version: '3.3'
+              services:
+                web:
+                  image: phizzl/php:7.4-apache-ubuntu-xenial
+```
+
+### Run command if container was restarted
+```yaml
+---
+- hosts: docker
+  roles:
+    - role: phizzl.dockercompose
+      vars:
+        docker_compose_src:
+          - dest: /tmp/test-apache
+            git:
+              repo: https://github.com/johndoe/awesome.git
+            post_commands:
+              - '[ "$SETUP_RESTARTED" == "0" ] || echo Restarted!'
 ```
