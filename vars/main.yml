@@ -1,6 +1,7 @@
 docker_compose_item_defaults:
   state: present
   stopped: no
+  retstarted: no
   build: no
   compose_files: []
   templates: []

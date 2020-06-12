@@ -10,8 +10,7 @@
     compose_files: []
     compose_definition_files: []
     compose_definition_files_changed: no
-    compose_restarted: no
-    compose_stopped: no
+    compose_restarted: "{{ docker.restarted }}"
     compose_generated_filepath: "{{ docker.dest }}/{{ docker.definition_filename }}"
 
 - name: Create destination directory
