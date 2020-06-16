@@ -32,6 +32,7 @@ the list can have following attributes:
 | `pre_commands` | List of shell commands to run before docker-compose is started or stopped. See also the additional envs vars section below. | no | / |
 | `post_commands` | List of shell commands to run after docker-compose is started or stopped. See also the additional envs vars section below. | no | / |
 | `restart_on_change` | Option to automatically restart the container if the docker-compose setup has changed. | no | yes |
+| `docker_user` | If defined we will try to become the given user | no | / |
 
 
 #### `post_commands` and `pre_commands` additional enviroment vars

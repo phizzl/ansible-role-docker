@@ -1,6 +1,10 @@
 ---
 - name: Execute docker-compose tasks
-  include_tasks: run-docker-compose.yml
+  include_tasks:
+    file: run-docker-compose.yml
+    apply:
+      become: "{{ 'yes' if docker_compose_item.docker_user is defined else 'no' }}"
+      become_user: "{{ docker_compose_item.docker_user | default(omit) }}"
   loop: "{{ docker_compose_setups }}"
   loop_control:
     loop_var: docker_compose_item
