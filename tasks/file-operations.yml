@@ -11,7 +11,7 @@
 
 - name: Preparing templates to manage
   set_fact:
-    compose_templates: "{{ compose_templates }} + {{ item | combine({ \"dest\": docker.dest + \"/\" + item.dest }) }} ]"
+    compose_templates: "{{ compose_templates }} + [ {{ item | combine({ \"dest\": docker.dest + \"/\" + item.dest }) }} ]"
   loop: "{{ docker.templates }}"
 
 - name: Manage files and directories
