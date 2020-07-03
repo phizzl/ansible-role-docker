@@ -24,6 +24,8 @@
 
 - name: Manage templates
   template: "{{ item }}"
+  vars:
+    vars: "{{ item.vars | default({}) }}"
   loop: "{{ compose_templates }}"
 
 - name: Manage synchronizations
