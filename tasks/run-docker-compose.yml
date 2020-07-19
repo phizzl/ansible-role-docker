@@ -8,6 +8,8 @@
     compose_templates: []
     compose_copies: []
     compose_files: []
+    compose_linefiles: []
+    compose_replaces: []
     compose_definition_files: []
     compose_definition_files_changed: no
     compose_restarted: "{{ docker.restarted }}"

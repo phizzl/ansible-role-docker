@@ -14,6 +14,16 @@
     compose_templates: "{{ compose_templates }} + [ {{ item | combine({ \"dest\": docker.dest + \"/\" + item.dest }) }} ]"
   loop: "{{ docker.templates }}"
 
+- name: Preparing paths for linefiles to manage
+  set_fact:
+    compose_linefiles: "{{ compose_linefiles }} + [ {{ item | combine({ \"path\": docker.dest + \"/\" + item.path }) }} ]"
+  loop: "{{ docker.linefiles }}"
+
+- name: Preparing paths for replaces to manage
+  set_fact:
+    compose_replaces: "{{ compose_replaces }} + [ {{ item | combine({ \"path\": docker.dest + \"/\" + item.path }) }} ]"
+  loop: "{{ docker.replaces }}"
+
 - name: Manage files and directories
   file: "{{ item }}"
   loop: "{{ compose_files }}"
@@ -31,3 +41,11 @@
 - name: Manage synchronizations
   synchronize: "{{ item }}"
   loop: "{{ docker.syncs }}"
+
+- name: Manage linefiles
+  linefile: "{{ item }}"
+  loop: "{{ compose_linefiles }}"
+
+- name: Manage replaces
+  replace: "{{ item }}"
+  loop: "{{ compose_replaces }}"

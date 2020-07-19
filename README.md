@@ -24,11 +24,16 @@ the list can have following attributes:
 | `definition` | Define docker-compose file in this YAML. You can put more YAML or a string containing YAML here. The generated docker-compose file is automatically appended to `compose_files`. Changes will cause the container to restart if already started. | no | / |
 | `state` | state of the setup (present, stopped or absent) | no | present |
 | `build` | docker-compose build?  | no | no |
+| `pull` | Same as `docker-compose pull`. Recreates application until `recreate` is set to no. | no | no |
+| `recreate` | By default containers will be recreated when their configuration differs from the service definition. Setting to `never` ignores configuration differences and leaves existing containers unchanged. Setting to `always` forces recreation of all existing containers.  | no | smart |
 | `volumes` | List of volumes to manage. See the [official docs](https://docs.ansible.com/ansible/latest/modules/docker_volume_module.html). | no | [] |
-| `build` | List of networks to manage. See the [officeial docs](https://docs.ansible.com/ansible/latest/modules/docker_network_module.html). | no | [] |
+| `networks` | List of networks to manage. See the [official docs](https://docs.ansible.com/ansible/latest/modules/docker_network_module.html). | no | [] |
 | `files` | List of files to manage. For each file item the defined `dest` of this `docker_compose_setups` item is automatically prepended to the file items required `path`. See the [official docs](https://docs.ansible.com/ansible/latest/modules/file_module.html). | no | [] |
 | `copies` | List of file and directories to copy. For each copy item the defined `dest` of this `docker_compose_setups` item is automatically prepended to the copy items required `dest`. See the [official docs](https://docs.ansible.com/ansible/latest/modules/copy_module.html). | no | [] |
 | `templates` | List of templates to copy. For each copy item the defined `dest` of this `docker_compose_setups` item is automatically prepended to the copy items required `dest`. See the [official docs](https://docs.ansible.com/ansible/latest/modules/template_module.html). You can also pass `vars` that will be accessible in variable `vars` in the template. | no | [] |
+| `syncs` | List of `synchronoize` operations. See the [official docs](https://docs.ansible.com/ansible/latest/modules/synchronize_module.html). | no | [] |
+| `linefiles` | List of `linefile` operations. For each item the defined `dest` of this `docker_compose_setups` item is automatically prepended to the linefile items required `path`. See the [official docs](https://docs.ansible.com/ansible/latest/modules/linefile_module.html). | no | [] |
+| `replaces` | List of `replace` operations. For each item the defined `dest` of this `docker_compose_setups` item is automatically prepended to the linefile items required `path`. See the [official docs](https://docs.ansible.com/ansible/latest/modules/replace_module.html). | no | [] |
 | `pre_commands` | List of shell commands to run before docker-compose is started or stopped. See also the additional envs vars section below. | no | / |
 | `post_commands` | List of shell commands to run after docker-compose is started or stopped. See also the additional envs vars section below. | no | / |
 | `restart_on_change` | Option to automatically restart the container if the docker-compose setup has changed. | no | yes |
