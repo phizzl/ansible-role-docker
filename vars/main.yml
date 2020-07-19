@@ -3,6 +3,8 @@ docker_compose_item_defaults:
   stopped: no
   restarted: no
   build: no
+  pull: no
+  recreate: smart
   compose_files: []
   templates: []
   copies: []

@@ -110,6 +110,8 @@
     stopped: "{{ docker.stopped }}"
     files: "{{ [\"docker-compose.yml\"] if compose_definition_files|length < 1 else compose_definition_files }}"
     build: "{{ docker.build }}"
+    pull: "{{ docker.pull }}"
+    recreate: "{{ docker.recreate }}"
 
 - name: Execute post commands
   shell: "{{ item }}"
