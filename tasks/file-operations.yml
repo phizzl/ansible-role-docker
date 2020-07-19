@@ -14,10 +14,10 @@
     compose_templates: "{{ compose_templates }} + [ {{ item | combine({ \"dest\": docker.dest + \"/\" + item.dest }) }} ]"
   loop: "{{ docker.templates }}"
 
-- name: Preparing paths for linefiles to manage
+- name: Preparing paths for lineinfile to manage
   set_fact:
-    compose_linefiles: "{{ compose_linefiles }} + [ {{ item | combine({ \"path\": docker.dest + \"/\" + item.path }) }} ]"
-  loop: "{{ docker.linefiles }}"
+    compose_lineinfiles: "{{ compose_lineinfiles }} + [ {{ item | combine({ \"path\": docker.dest + \"/\" + item.path }) }} ]"
+  loop: "{{ docker.lineinfiles }}"
 
 - name: Preparing paths for replaces to manage
   set_fact:
@@ -43,8 +43,8 @@
   loop: "{{ docker.syncs }}"
 
 - name: Manage linefiles
-  linefile: "{{ item }}"
-  loop: "{{ compose_linefiles }}"
+  lineinfile: "{{ item }}"
+  loop: "{{ compose_lineinfiles }}"
 
 - name: Manage replaces
   replace: "{{ item }}"
