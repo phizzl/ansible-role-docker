@@ -5,6 +5,7 @@
     apply:
       become: "{{ 'yes' if docker_compose_item.docker_user is defined else 'no' }}"
       become_user: "{{ docker_compose_item.docker_user | default(omit) }}"
+      become_flags: "{{ '-H' if docker_compose_item.docker_user is defined else omit }}"
   loop: "{{ docker_compose_setups }}"
   loop_control:
     loop_var: docker_compose_item
