@@ -2,7 +2,9 @@
 - name: Configure docker volumes
   docker_volume: "{{ item }}"
   loop: "{{ docker.volumes }}"
+  when: docker.state != "absent"
 
 - name: Configure networks
   docker_network: "{{ item }}"
   loop: "{{ docker.networks }}"
+  when: docker.state != "absent"
