@@ -1,4 +1,8 @@
 ---
+- name: Login to docker registries
+  docker_login: "{{ item }}"
+  loop: "{{ docker_logins }}"
+
 - name: Execute docker-compose tasks
   include_tasks:
     file: run-docker-compose.yml
@@ -9,3 +13,8 @@
   loop: "{{ docker_compose_setups }}"
   loop_control:
     loop_var: docker_compose_item
+
+
+- name: Logout from docker registries
+  docker_login: "{{ item | combine({'state': 'absent'}) }}"
+  loop: "{{ docker_logins }}"

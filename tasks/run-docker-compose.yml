@@ -114,6 +114,7 @@
     build: "{{ docker.build }}"
     pull: "{{ docker.pull }}"
     recreate: "{{ docker.recreate }}"
+    scale: "{{ docker.scale }}"
 
 - name: Execute post commands
   shell: "{{ item }}"

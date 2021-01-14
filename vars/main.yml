@@ -14,6 +14,7 @@ docker_compose_item_defaults:
   replaces: []
   volumes: []
   networks: []
+  scale: {}
   pre_commands: []
   post_commands: []
   definition_filename: docker-compose.ansible.yml

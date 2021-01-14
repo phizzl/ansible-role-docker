@@ -10,6 +10,7 @@ A role for booting a docker-compose setup
 | Variable | Description | Default value |
 |----------|-------------|---------------|
 | `docker_compose_setups`| See details below | / |
+| `docker_logins` | List of docker logins. See official docs. | {} |
 
 ### `docker_compose_setups` details
 
@@ -28,6 +29,7 @@ the list can have following attributes:
 | `recreate` | By default containers will be recreated when their configuration differs from the service definition. Setting to `never` ignores configuration differences and leaves existing containers unchanged. Setting to `always` forces recreation of all existing containers.  | no | smart |
 | `volumes` | List of volumes to manage. See the [official docs](https://docs.ansible.com/ansible/latest/modules/docker_volume_module.html). | no | [] |
 | `networks` | List of networks to manage. See the [official docs](https://docs.ansible.com/ansible/latest/modules/docker_network_module.html). | no | [] |
+| `logins` | List of docker logins to manage. See the [official docs](https://docs.ansible.com/ansible/2.4/docker_login_module.html). | no | [] |
 | `files` | List of files to manage. For each file item the defined `dest` of this `docker_compose_setups` item is automatically prepended to the file items required `path`. See the [official docs](https://docs.ansible.com/ansible/latest/modules/file_module.html). | no | [] |
 | `copies` | List of file and directories to copy. For each copy item the defined `dest` of this `docker_compose_setups` item is automatically prepended to the copy items required `dest`. See the [official docs](https://docs.ansible.com/ansible/latest/modules/copy_module.html). | no | [] |
 | `templates` | List of templates to copy. For each copy item the defined `dest` of this `docker_compose_setups` item is automatically prepended to the copy items required `dest`. See the [official docs](https://docs.ansible.com/ansible/latest/modules/template_module.html). You can also pass `vars` that will be accessible in variable `vars` in the template. | no | [] |
@@ -38,6 +40,7 @@ the list can have following attributes:
 | `post_commands` | List of shell commands to run after docker-compose is started or stopped. See also the additional envs vars section below. | no | / |
 | `restart_on_change` | Option to automatically restart the container if the docker-compose setup has changed. | no | yes |
 | `docker_user` | If defined we will try to become the given user | no | / |
+| `scale` | Scale services | no | / |
 
 
 #### `post_commands` and `pre_commands` additional enviroment vars
