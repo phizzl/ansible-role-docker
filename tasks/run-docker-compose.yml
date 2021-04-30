@@ -90,7 +90,9 @@
 - name: Check if the docker-compose setup needs to be restarted
   set_fact:
     compose_restarted: yes
-  when: compose_definition_files_changed and docker.restart_on_change
+  when: >
+    compose_definition_files_changed and docker.restart_on_change and
+    (docker.stopped is not defined or docker.stopped == false)
 
 - name: Execute pre commands
   shell: "{{ item }}"
